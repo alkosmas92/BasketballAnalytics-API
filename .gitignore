@@ -1,0 +1,11 @@
+# This file is a combination of the official .gitignore templates for Visual Studio and .NET
+
+## C#
+[Bb]in/
+[Oo]bj/
+
+## Visual Studio Generated
+*.vs/
+.vs/
+*.user
+*.suo

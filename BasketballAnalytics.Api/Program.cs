@@ -1,0 +1,44 @@
+using BasketballAnalytics.Application.Common.Interfaces;
+using BasketballAnalytics.Persistence.DbContext;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.InMemory;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// Add services to the container.
+
+builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseInMemoryDatabase("BasketballDb"));
+builder.Services.AddScoped<IApplicationDbContext, ApplicationDbContext>();
+
+builder.Services.AddControllers();
+// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+var app = builder.Build();
+
+// Configure the HTTP request pipeline.
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+      using (var scope = app.Services.CreateScope())
+    {
+        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        context.Database.EnsureCreated(); // Δημιουργεί τη βάση (αν δεν υπάρχει)
+        if (!context.Teams.Any())
+        {
+            context.Teams.Add(new BasketballAnalytics.Domain.Entities.Team { Id = Guid.NewGuid(), Name = "Olympiacos", City = "Piraeus" });
+            context.Teams.Add(new BasketballAnalytics.Domain.Entities.Team { Id = Guid.NewGuid(), Name = "Panathinaikos", City = "Athens" });
+            context.SaveChanges();
+        }
+    }
+}
+
+app.UseHttpsRedirection();
+
+app.UseAuthorization();
+
+app.MapControllers();
+
+app.Run();
